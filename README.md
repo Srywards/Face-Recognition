@@ -1,5 +1,22 @@
 # Face-recognition-student
 
+**Proof of concept**
+
+**Overview**
+
+**Training**
+
+**Installation & Usage**
+
+
+**Dependencies**
+
+* Python3
+* OpenCV
+* PIP
+* Numpy
+* Image
+
 ## License
 
 Face-recognition-student is licensed under the MIT license.

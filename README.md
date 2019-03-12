@@ -37,6 +37,10 @@ python face_detection_students.py
 
 ![github_example](https://user-images.githubusercontent.com/15232456/54197679-d9ced380-44c4-11e9-9d45-3be4187a7dd0.png)
 
+This will create 100 images in dataset folder like this : 
+
+![example_dataset](https://user-images.githubusercontent.com/15232456/54198618-4945c280-44c7-11e9-87c6-c65154c6deed.png)
+
 ```bash
 python training_students.py
 ```
@@ -52,6 +56,7 @@ python face_recognition_students.py
 
 ![recognize_unknow](https://user-images.githubusercontent.com/15232456/54198190-236bee00-44c6-11e9-8d3f-e12b84f66f07.png)
 
+# That's all folks !
 
 <img src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" width="400" height="400"/>
 

@@ -47,6 +47,14 @@ python training_students.py
 
 ![github_training](https://user-images.githubusercontent.com/15232456/54197821-3fbb5b00-44c5-11e9-8b7b-1b3378495f65.png)
 
+![alarm (1)](https://user-images.githubusercontent.com/15232456/54199793-151fd100-44ca-11e9-9295-e85ec7363f20.png)
+
+Before your run face_recognition_students.py, at **Line 13 in face_recognition_students.py** change the name that matches your id
+
+For example i gave the id 1 for simple :
+
+![id_simple](https://user-images.githubusercontent.com/15232456/54199692-d8ec7080-44c9-11e9-8617-823a4ef2142a.png)
+
 ```bash
 python face_recognition_students.py
 ```

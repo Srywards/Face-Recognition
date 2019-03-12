@@ -51,10 +51,10 @@ python training_students.py
 python face_recognition_students.py
 ```
 
-![recognize_simple](https://user-images.githubusercontent.com/15232456/54198160-151dd200-44c6-11e9-85f9-284bbf87375a.png)
+![recognition_simple](https://user-images.githubusercontent.com/15232456/54199234-b60d8c80-44c8-11e9-94b8-fa88676fa4b3.png)
 
 
-![recognize_unknow](https://user-images.githubusercontent.com/15232456/54198190-236bee00-44c6-11e9-8d3f-e12b84f66f07.png)
+![recognition_unknow](https://user-images.githubusercontent.com/15232456/54199291-d9d0d280-44c8-11e9-8e43-a88f8f1278c4.png)
 
 # That's all folks !
 

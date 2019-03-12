@@ -24,7 +24,7 @@ def getImagesAndLabels(path):
 
     return faceSamples,students
 
-print("Training faces in dataset folder")
+print("Training in progress..")
 faces,students = getImagesAndLabels('dataset')
 recognizer.train(faces, np.array(students))
 recognizer.write('trainer/trainer.yml')

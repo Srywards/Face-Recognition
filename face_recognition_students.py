@@ -29,7 +29,7 @@ while True:
         minSize = (50, 50),
        )
     for(x,y,w,h) in faces:
-        cv2.rectangle(image_frame, (x,y), (x+w,y+h), (0,255,0), 2)
+        cv2.rectangle(image_frame, (x,y), (x+w,y+h), (255,0,0), 2)
         id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
         if (confidence < 35):
             id = names[id]
@@ -38,7 +38,6 @@ while True:
             id = "unknow"
             confidence = "  {0}%".format(round(100 - confidence))
         cv2.putText(image_frame, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
-        cv2.putText(image_frame, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)
-    cv2.imshow('camera',image_frame)
+    cv2.imshow('face_recognition_students',image_frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

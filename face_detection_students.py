@@ -2,6 +2,7 @@ from urllib.request import urlopen
 import numpy as np
 import cv2
 import sys
+import os
 from tkinter import *
 from PIL import Image
 
@@ -15,6 +16,24 @@ def stocktext():
     id_student = string
     ip = string2
     root.destroy()
+
+def getImagesAndLabels(path):
+
+    imagePaths = [os.path.join(path,f) for f in os.listdir(path)]
+    faceSamples=[]
+    students = []
+    for imagePath in imagePaths:
+
+        PIL_img = Image.open(imagePath).convert('L')
+        img_numpy = np.array(PIL_img,'uint8')
+        id = int(os.path.split(imagePath)[-1].split(".")[1])
+        faces = frontal_face.detectMultiScale(img_numpy)
+
+        for (x,y,w,h) in faces:
+            faceSamples.append(img_numpy[y:y+h,x:x+w])
+            students.append(id)
+
+    return faceSamples,students
 
 root = Tk()
 root.title('User Infos')
@@ -35,6 +54,7 @@ root.mainloop()
 print("This is your ID : ", id_student)
 print("This is your IP : ", ip)
 i = 0
+recognizer = cv2.face.LBPHFaceRecognizer_create()
 frontal_face = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 url = 'http://' + str(ip) + ':8080/shot.jpg'
 
@@ -59,6 +79,12 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     if i > 100:
-        print("Detection complete, now execute training_students.py")
+        cv2.destroyWindow('face_student_detection')
         break
 
+if i > 1:
+    print("Please wait, training in progress...\nIt may take longer depending on the size of the dataset")
+    faces,students = getImagesAndLabels('dataset')
+    recognizer.train(faces, np.array(students))
+    recognizer.write('trainer/trainer.yml')
+    print("You can now recognize the faces of the students, they will be stored in a database")

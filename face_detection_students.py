@@ -87,4 +87,4 @@ if i > 1:
     faces,students = getImagesAndLabels('dataset')
     recognizer.train(faces, np.array(students))
     recognizer.write('trainer/trainer.yml')
-    print("You can now recognize the faces of the students, they will be stored in a database")
+    print("You can now recognize the faces of the students, they will be stored in a database\npython face_recognition_students.py")

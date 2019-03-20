@@ -12,17 +12,17 @@ class UI():
     def __init__(self, master):
         self.master = master
         self.master.title("Face recognition student")
-        self.master.geometry("150x150")
+        self.master.geometry("155x140")
         self.label = tk.Label(master, text='Face recognition student')
         self.detectionButton = tk.Button(master, text='Face detection', command=self.face_detection)
         self.trainingButton = tk.Button(master, text='Training', command=self.train)
         self.recognizeButton = tk.Button(master, text='Recognize', command=self.recognize)
         self.exitButton = tk.Button(master, text='Exit', command=self.exit)
-        self.label.grid(columnspan=2)
-        self.detectionButton.grid(column=0)
-        self.trainingButton.grid(column=0)
-        self.recognizeButton.grid(column=0)
-        self.exitButton.grid(column=0)
+        self.label.grid(row =1, column=1)
+        self.detectionButton.grid(row =2, column=1)
+        self.trainingButton.grid(row =3, column=1)
+        self.recognizeButton.grid(row =4, column=1)
+        self.exitButton.grid(row =5, column=1)
 
     def face_detection(self):
         DetectionWindow(self)
@@ -41,7 +41,7 @@ class RecognizeWindow(UI):
 		self.mainUI = mainUI
 		self.g = tk.Toplevel()
 		self.g.title('Face recognition')
-		self.g.geometry("400x200")
+		self.g.geometry("190x100")
 		self.menuButton = tk.Button(self.g, text='Main Menu', command=self.exitMenu)
 		self.menuButton.grid(column=0,row=0)
 		self.label_ip = tk.Label(self.g, text="What is the ip of the camera ?")
@@ -64,7 +64,7 @@ class RecognizeWindow(UI):
 		cascadePath = "haarcascade_frontalface_default.xml"
 		faceCascade = cv2.CascadeClassifier(cascadePath);
 		font = cv2.FONT_HERSHEY_SIMPLEX
-		names = ['Unknow', 'Coco', 'Hugo']
+		names = ['Unknow', 's1mple']
 		url = 'http://' + str(self.ip) + ':8080/shot.jpg'
 		connect = sqlite3.connect(':memory:')
 		db = connect.cursor()
@@ -110,7 +110,7 @@ class DetectionWindow(UI):
 		self.mainUI = mainUI
 		self.g = tk.Toplevel()
 		self.g.title('Face detection')
-		self.g.geometry("400x200")
+		self.g.geometry("350x180")
 		self.menuButton = tk.Button(self.g, text='Main Menu', command=self.exitMenu)
 		self.menuButton.grid(column=0,row=0)
 		self.label_id = tk.Label(self.g, text="Enter an id for the user (for example : 1, 2, 3)\nDo not take 1 for example if there is student.1.0.jpg\nChoose a number that is not part of the dataset folder :")

@@ -28,7 +28,7 @@ class UI():
         DetectionWindow(self)
 
     def train(self):
-        TrainingWindow(self)
+        Training()
 
     def recognize(self):
         RecognizeWindow(self)
@@ -49,21 +49,52 @@ class RecognizeWindow(UI):
 		self.string_ip = tk.Entry(self.g)
 		self.string_ip.grid(columnspan=1)
 		self.string_ip.focus_set()
-		self.confirmButton = tk.Button(self.g, text='Confirm', command=self.confirm)
+		self.confirmButton = tk.Button(self.g, text='Confirm', command=self.face_recognition)
 		self.confirmButton.grid(column=0)
 
 	def exitMenu(self):
 		self.g.destroy()
 
-	def confirm(self):
-		string = self.string_ip.get()
-		self.ip = string
-		id = 0
+	def face_recognition(self):
+        	Recognition(self.string_ip)
+
+class DetectionWindow(UI):
+	def __init__(self, mainUI):
+		self.mainUI = mainUI
+		self.g = tk.Toplevel()
+		self.g.title('Face detection')
+		self.g.geometry("350x180")
+		self.menuButton = tk.Button(self.g, text='Main Menu', command=self.exitMenu)
+		self.menuButton.grid(column=0,row=0)
+		self.label_id = tk.Label(self.g, text="Enter an id for the user (for example : 1, 2, 3)\nDo not take 1 for example if there is student.1.0.jpg\nChoose a number that is not part of the dataset folder :")
+		self.label_id.grid(columnspan=1)
+		self.string_id_student = tk.Entry(self.g)
+		self.string_id_student.grid(columnspan=1)
+		self.string_id_student.focus_set()
+		self.label_ip = tk.Label(self.g, text="What is the ip of the camera ?")
+		self.label_ip.grid(columnspan=1)
+		self.string_ip = tk.Entry(self.g)
+		self.string_ip.grid(columnspan=1)
+		self.confirmButton = tk.Button(self.g, text='Confirm', command=self.face_detection)
+		self.confirmButton.grid(column=0)
+
+	def face_detection(self):
+        	Detection(self.string_id_student, self.string_ip)
+
+	def exitMenu(self):
+		self.g.destroy()
+
+class Recognition():
+	def __init__(self, string_ip):
+		self.ip = string_ip.get()
+		self.id = 0
+		self.face_recognition()
+
+	def face_recognition(self):
 		if os.path.isfile('trainer/trainer.yml'):
 			pass
 		else:
 			print("Trainer file not found")
-			self.exitMenu()
 			return
 		recognizer = cv2.face.LBPHFaceRecognizer_create()
 		recognizer.read('trainer/trainer.yml')
@@ -71,7 +102,6 @@ class RecognizeWindow(UI):
 			pass
 		else:
 			print("Haarcascade file not found")
-			self.exitMenu()
 			return
 		faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml');
 		font = cv2.FONT_HERSHEY_SIMPLEX
@@ -97,15 +127,15 @@ class RecognizeWindow(UI):
 				)
 			for(x,y,w,h) in faces:
 				cv2.rectangle(image_frame, (x,y), (x+w,y+h), (255,0,0), 2)
-				id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
+				self.id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
 				if (confidence < 100):
-					id = names[id]
-					db.execute("INSERT INTO students VALUES (?, ?);", (str(id), time.strftime("%A %d %B %Y %H:%M:%S")))
+					self.id = names[self.id]
+					db.execute("INSERT INTO students VALUES (?, ?);", (str(self.id), time.strftime("%A %d %B %Y %H:%M:%S")))
 					confidence = "  {0}%".format(round(100 - confidence))
 				else:
-					id = "unknow"
+					self.id = "unknow"
 					confidence = "  {0}%".format(round(100 - confidence))
-				cv2.putText(image_frame, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
+				cv2.putText(image_frame, str(self.id), (x+5,y-5), font, 1, (255,255,255), 2)
 			cv2.imshow('face_recognition_students',image_frame)
 			if cv2.waitKey(1) & 0xFF == ord('q'):
 				connect.commit()
@@ -113,43 +143,20 @@ class RecognizeWindow(UI):
 					print (row)
 				connect.close()
 				cv2.destroyWindow('face_recognition_students')
-				self.exitMenu()
 				break
 
-class DetectionWindow(UI):
-	def __init__(self, mainUI):
-		self.mainUI = mainUI
-		self.g = tk.Toplevel()
-		self.g.title('Face detection')
-		self.g.geometry("350x180")
-		self.menuButton = tk.Button(self.g, text='Main Menu', command=self.exitMenu)
-		self.menuButton.grid(column=0,row=0)
-		self.label_id = tk.Label(self.g, text="Enter an id for the user (for example : 1, 2, 3)\nDo not take 1 for example if there is student.1.0.jpg\nChoose a number that is not part of the dataset folder :")
-		self.label_id.grid(columnspan=1)
-		self.string_id_student = tk.Entry(self.g)
-		self.string_id_student.grid(columnspan=1)
-		self.string_id_student.focus_set()
-		self.label_ip = tk.Label(self.g, text="What is the ip of the camera ?")
-		self.label_ip.grid(columnspan=1)
-		self.string_ip = tk.Entry(self.g)
-		self.string_ip.grid(columnspan=1)
-		self.confirmButton = tk.Button(self.g, text='Confirm', command=self.confirm)
-		self.confirmButton.grid(column=0)
+class Detection():
+	def __init__(self, string_id_student, string_ip):
+		self.id_student = string_id_student.get()
+		self.ip = string_ip.get()
+		self.i = 0
+		self.face_detection()
 
-	def exitMenu(self):
-		self.g.destroy()
-
-	def confirm(self):
-		string = self.string_id_student.get()
-		string2 = self.string_ip.get()
-		self.id_student = string
-		self.ip = string2
-		i = 0
+	def face_detection(self):
 		if os.path.isfile('haarcascade_frontalface_default.xml'):
 			pass
 		else:
 			print("Haarcascade file not found")
-			self.exitMenu()
 			return
 		recognizer = cv2.face.LBPHFaceRecognizer_create()
 		frontal_face = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -169,19 +176,21 @@ class DetectionWindow(UI):
 				)
 			for (x,y,w,h) in faces:
 				cv2.rectangle(image_frame, (x,y), (x+w,y+h), (255,0,0), 2)
-				cv2.imwrite("dataset/student." + str(self.id_student) + "." + str(i) + ".jpg", gray[y:y+h,x:x+w])
-				i += 1
+				cv2.imwrite("dataset/student." + str(self.id_student) + "." + str(self.i) + ".jpg", gray[y:y+h,x:x+w])
+				self.i += 1
 			cv2.imshow('face_student_detection', image_frame)
 			if cv2.waitKey(1) & 0xFF == ord('q'):
 				cv2.destroyWindow('face_student_detection')
 				break
-			if i > 1:
+			if self.i > 1:
 				cv2.destroyWindow('face_student_detection')
-				self.exitMenu()
 				break
 
-class TrainingWindow(UI):
-    def __init__(self, mainUI):
+class Training():
+	def __init__(self):
+		self.training()
+
+	def training(self):
 	    if os.path.isfile('haarcascade_frontalface_default.xml'):
 		    pass
 	    else:

@@ -91,16 +91,12 @@ class Recognition():
 		self.face_recognition()
 
 	def face_recognition(self):
-		if os.path.isfile('trainer/trainer.yml'):
-			pass
-		else:
+		if not os.path.isfile('trainer/trainer.yml'):
 			print("Trainer file not found")
 			return
 		recognizer = cv2.face.LBPHFaceRecognizer_create()
 		recognizer.read('trainer/trainer.yml')
-		if os.path.isfile('haarcascade_frontalface_default.xml'):
-			pass
-		else:
+		if not os.path.isfile('haarcascade_frontalface_default.xml'):
 			print("Haarcascade file not found")
 			return
 		faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml');
@@ -153,9 +149,7 @@ class Detection():
 		self.face_detection()
 
 	def face_detection(self):
-		if os.path.isfile('haarcascade_frontalface_default.xml'):
-			pass
-		else:
+		if not os.path.isfile('haarcascade_frontalface_default.xml'):
 			print("Haarcascade file not found")
 			return
 		recognizer = cv2.face.LBPHFaceRecognizer_create()
@@ -191,21 +185,15 @@ class Training():
 		self.training()
 
 	def training(self):
-	    if os.path.isfile('haarcascade_frontalface_default.xml'):
-		    pass
-	    else:
+	    if not os.path.isfile('haarcascade_frontalface_default.xml'):
 		    print("Haarcascade file not found")
 		    return
 	    recognizer = cv2.face.LBPHFaceRecognizer_create()
 	    frontal_face = cv2.CascadeClassifier("haarcascade_frontalface_default.xml");
-	    if os.path.isdir('dataset'):
-		    pass
-	    else:
+	    if not os.path.isdir('dataset'):
 		    print("Dataset dir not found")
 		    return
-	    if os.path.isdir('trainer'):
-		    pass
-	    else:
+	    if not os.path.isdir('trainer'):
 		    print("Trainer dir not found, please create one")
 		    return
 	    path = ('dataset')

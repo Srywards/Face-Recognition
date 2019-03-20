@@ -59,10 +59,21 @@ class RecognizeWindow(UI):
 		string = self.string_ip.get()
 		self.ip = string
 		id = 0
+		if os.path.isfile('trainer/trainer.yml'):
+			pass
+		else:
+			print("Trainer file not found")
+			self.exitMenu()
+			return
 		recognizer = cv2.face.LBPHFaceRecognizer_create()
 		recognizer.read('trainer/trainer.yml')
-		cascadePath = "haarcascade_frontalface_default.xml"
-		faceCascade = cv2.CascadeClassifier(cascadePath);
+		if os.path.isfile('haarcascade_frontalface_default.xml'):
+			pass
+		else:
+			print("Haarcascade file not found")
+			self.exitMenu()
+			return
+		faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml');
 		font = cv2.FONT_HERSHEY_SIMPLEX
 		names = ['Unknow', 's1mple']
 		url = 'http://' + str(self.ip) + ':8080/shot.jpg'
@@ -134,6 +145,12 @@ class DetectionWindow(UI):
 		self.id_student = string
 		self.ip = string2
 		i = 0
+		if os.path.isfile('haarcascade_frontalface_default.xml'):
+			pass
+		else:
+			print("Haarcascade file not found")
+			self.exitMenu()
+			return
 		recognizer = cv2.face.LBPHFaceRecognizer_create()
 		frontal_face = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 		url = 'http://' + str(self.ip) + ':8080/shot.jpg'
@@ -156,6 +173,7 @@ class DetectionWindow(UI):
 				i += 1
 			cv2.imshow('face_student_detection', image_frame)
 			if cv2.waitKey(1) & 0xFF == ord('q'):
+				cv2.destroyWindow('face_student_detection')
 				break
 			if i > 1:
 				cv2.destroyWindow('face_student_detection')
@@ -164,8 +182,23 @@ class DetectionWindow(UI):
 
 class TrainingWindow(UI):
     def __init__(self, mainUI):
+	    if os.path.isfile('haarcascade_frontalface_default.xml'):
+		    pass
+	    else:
+		    print("Haarcascade file not found")
+		    return
 	    recognizer = cv2.face.LBPHFaceRecognizer_create()
 	    frontal_face = cv2.CascadeClassifier("haarcascade_frontalface_default.xml");
+	    if os.path.isdir('dataset'):
+		    pass
+	    else:
+		    print("Dataset dir not found")
+		    return
+	    if os.path.isdir('trainer'):
+		    pass
+	    else:
+		    print("Trainer dir not found, please create one")
+		    return
 	    path = ('dataset')
 	    print("Training in progress..")
 	    imagePaths = [os.path.join(path,f) for f in os.listdir(path)]

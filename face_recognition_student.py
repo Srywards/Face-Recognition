@@ -138,7 +138,7 @@ class Metier():
 			if cv2.waitKey(1) & 0xFF == ord('q'):
 				cv2.destroyWindow('face_student_detection')
 				break
-			if self.i > 1:
+			if self.i > 100:
 				cv2.destroyWindow('face_student_detection')
 				break
 

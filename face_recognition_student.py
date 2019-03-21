@@ -107,26 +107,31 @@ class Metier():
 		self.db.execute('''CREATE TABLE students
 		(name, time)''')
 
+	def ip_connect(self, url):
+		try:
+			imgNp = np.array(bytearray(urlopen(url).read()),dtype=np.uint8)
+		except Exception:
+			print('IP is not valid please retry')
+			return
+		image_frame = cv2.imdecode(imgNp, -1)
+		gray = cv2.cvtColor(image_frame,cv2.COLOR_BGR2GRAY)
+		faces = self.faceCascade.detectMultiScale(
+			gray,
+			scaleFactor = 1.2,
+			minNeighbors = 5,
+			minSize = (50, 50),
+			)
+		return image_frame, faces, gray
+
 	def face_detection(self, string_ip, string_id_student):
 		self.ip = string_ip.get()
 		self.id_student = string_id_student.get()
 		self.i = 0
 		url = 'http://' + str(self.ip) + ':8080/shot.jpg'
 		while True:
-			try:
-				imgNp = np.array(bytearray(urlopen(url).read()), dtype=np.uint8)
-			except Exception:
-				print('IP is not valid please retry')
-				break
-			image_frame = cv2.imdecode(imgNp, -1)
-			gray = cv2.cvtColor(image_frame, cv2.COLOR_BGR2GRAY)
-			faces = self.faceCascade.detectMultiScale(
-				gray,
-				scaleFactor=1.3,
-				minNeighbors=5,
-				)
+			image_frame, faces, gray = self.ip_connect(url)
 			for (x,y,w,h) in faces:
-				cv2.rectangle(image_frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+				cv2.rectangle(image_frame, (x,y), (x+w,y+h), (255,0,0), 2)
 				cv2.imwrite("dataset/student." + str(self.id_student) + "." + str(self.i) + ".jpg", gray[y:y+h,x:x+w])
 				self.i += 1
 			cv2.imshow('face_student_detection', image_frame)
@@ -143,20 +148,8 @@ class Metier():
 		names = ['Unknow', 's1mple']
 		url = 'http://' + str(self.ip) + ':8080/shot.jpg'
 		while True:
-			try:
-				imgNp=np.array(bytearray(urlopen(url).read()),dtype=np.uint8)
-			except Exception:
-				print('IP is not valid please retry')
-				break
-			image_frame=cv2.imdecode(imgNp,-1)
-			gray = cv2.cvtColor(image_frame,cv2.COLOR_BGR2GRAY)
-			faces = self.faceCascade.detectMultiScale(
-				gray,
-				scaleFactor = 1.2,
-				minNeighbors = 5,
-				minSize = (50, 50),
-				)
-			for(x, y, w, h) in faces:
+			image_frame, faces, gray = ip_connect()
+			for(x,y,w,h) in faces:
 				cv2.rectangle(image_frame, (x,y), (x+w,y+h), (255,0,0), 2)
 				self.id, confidence = self.recognizer.predict(gray[y:y+h,x:x+w])
 				if (confidence < 100):

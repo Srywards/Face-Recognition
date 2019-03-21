@@ -85,12 +85,19 @@ class Metier():
 	def __init__(self):
 		self.ip = ""
 		self.id = 0
-		self.i = 0
 		self.id_student = ""
+		self.recognizer = cv2.face.LBPHFaceRecognizer_create()
+		if not os.path.isdir('dataset'):
+			print("Dataset dir not found")
+			UI.exit(self)
+		if not os.path.isdir('trainer'):
+		    print("Trainer dir not found, please create one")
+		    UI.exit(self)
 		if not os.path.isfile('haarcascade_frontalface_default.xml'):
 			print("Haarcascade file not found")
 			UI.exit(self)
 		self.haarcascade_file = "haarcascade_frontalface_default.xml"
+		self.faceCascade = cv2.CascadeClassifier(self.haarcascade_file)
 		if not os.path.isfile('trainer/trainer.yml'):
 			print("Trainer file not found")
 			UI.exit(self)
@@ -103,8 +110,7 @@ class Metier():
 	def face_detection(self, string_ip, string_id_student):
 		self.ip = string_ip.get()
 		self.id_student = string_id_student.get()
-		recognizer = cv2.face.LBPHFaceRecognizer_create()
-		frontal_face = cv2.CascadeClassifier(self.haarcascade_file)
+		self.i = 0
 		url = 'http://' + str(self.ip) + ':8080/shot.jpg'
 		while True:
 			try:
@@ -114,7 +120,7 @@ class Metier():
 				break
 			image_frame = cv2.imdecode(imgNp, -1)
 			gray = cv2.cvtColor(image_frame, cv2.COLOR_BGR2GRAY)
-			faces = frontal_face.detectMultiScale(
+			faces = self.faceCascade.detectMultiScale(
 				gray,
 				scaleFactor=1.3,
 				minNeighbors=5,
@@ -133,9 +139,7 @@ class Metier():
 
 	def face_recognition(self, string_ip):
 		self.ip = string_ip.get()
-		recognizer = cv2.face.LBPHFaceRecognizer_create()
-		recognizer.read(self.trainer_file)
-		faceCascade = cv2.CascadeClassifier(self.haarcascade_file)
+		self.recognizer.read(self.trainer_file)
 		names = ['Unknow', 's1mple']
 		url = 'http://' + str(self.ip) + ':8080/shot.jpg'
 		while True:
@@ -146,7 +150,7 @@ class Metier():
 				break
 			image_frame=cv2.imdecode(imgNp,-1)
 			gray = cv2.cvtColor(image_frame,cv2.COLOR_BGR2GRAY)
-			faces = faceCascade.detectMultiScale(
+			faces = self.faceCascade.detectMultiScale(
 				gray,
 				scaleFactor = 1.2,
 				minNeighbors = 5,
@@ -154,7 +158,7 @@ class Metier():
 				)
 			for(x, y, w, h) in faces:
 				cv2.rectangle(image_frame, (x,y), (x+w,y+h), (255,0,0), 2)
-				self.id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
+				self.id, confidence = self.recognizer.predict(gray[y:y+h,x:x+w])
 				if (confidence < 100):
 					self.id = names[self.id]
 					self.db.execute("INSERT INTO students VALUES (?, ?);", (str(self.id), time.strftime("%A %d %B %Y %H:%M:%S")))
@@ -173,14 +177,6 @@ class Metier():
 				break
 
 	def training(self):
-	    recognizer = cv2.face.LBPHFaceRecognizer_create()
-	    frontal_face = cv2.CascadeClassifier(self.haarcascade_file)
-	    if not os.path.isdir('dataset'):
-		    print("Dataset dir not found")
-		    return
-	    if not os.path.isdir('trainer'):
-		    print("Trainer dir not found, please create one")
-		    return
 	    path = ('dataset')
 	    print("Training in progress..")
 	    imagePaths = [os.path.join(path,f) for f in os.listdir(path)]
@@ -190,12 +186,12 @@ class Metier():
 		    PIL_img = Image.open(imagePath).convert('L')
 		    img_numpy = np.array(PIL_img,'uint8')
 		    id = int(os.path.split(imagePath)[-1].split(".")[1])
-		    faces = frontal_face.detectMultiScale(img_numpy)
+		    faces = self.faceCascade.detectMultiScale(img_numpy)
 		    for (x,y,w,h) in faces:
 			    faceSamples.append(img_numpy[y:y+h,x:x+w])
 			    students.append(id)
-	    recognizer.train(faceSamples, np.array(students))
-	    recognizer.write(self.trainer_file)
+	    self.recognizer.train(faceSamples, np.array(students))
+	    self.recognizer.write(self.trainer_file)
 	    print("Training done !")
 
 if __name__ == "__main__":

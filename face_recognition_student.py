@@ -9,32 +9,33 @@ import tkinter as tk
 from PIL import Image
 
 class UI():
-    def __init__(self, master):
-        self.master = master
-        self.master.title("Face recognition student")
-        self.master.geometry("155x140")
-        self.label = tk.Label(master, text='Face recognition student')
-        self.detectionButton = tk.Button(master, text='Face detection', command=self.face_detection)
-        self.trainingButton = tk.Button(master, text='Training', command=self.train)
-        self.recognizeButton = tk.Button(master, text='Recognize', command=self.recognize)
-        self.exitButton = tk.Button(master, text='Exit', command=self.exit)
-        self.label.grid(row =1, column=1)
-        self.detectionButton.grid(row =2, column=1)
-        self.trainingButton.grid(row =3, column=1)
-        self.recognizeButton.grid(row =4, column=1)
-        self.exitButton.grid(row =5, column=1)
+	def __init__(self, master):
+		self.master = master
+		self.master.title("Face recognition student")
+		self.master.geometry("155x140")
+		self.label = tk.Label(master, text='Face recognition student')
+		self.detectionButton = tk.Button(master, text='Face detection', command=self.face_detection)
+		self.trainingButton = tk.Button(master, text='Training', command=self.train)
+		self.recognizeButton = tk.Button(master, text='Recognize', command=self.recognize)
+		self.exitButton = tk.Button(master, text='Exit', command=self.exit)
+		self.label.grid(row =1, column=1)
+		self.detectionButton.grid(row =2, column=1)
+		self.trainingButton.grid(row =3, column=1)
+		self.recognizeButton.grid(row =4, column=1)
+		self.exitButton.grid(row =5, column=1)
+		self.met = Metier()
 
-    def face_detection(self):
-        DetectionWindow(self)
+	def face_detection(self):
+		DetectionWindow(self)
 
-    def train(self):
-        Training()
+	def train(self):
+		self.met.training()
 
-    def recognize(self):
-        RecognizeWindow(self)
+	def recognize(self):
+		RecognizeWindow(self)
 
-    def exit(self):
-        root.destroy()
+	def exit(self):
+		root.destroy()
 
 class RecognizeWindow(UI):
 	def __init__(self, mainUI):
@@ -42,7 +43,7 @@ class RecognizeWindow(UI):
 		self.g = tk.Toplevel()
 		self.g.title('Face recognition')
 		self.g.geometry("190x100")
-		self.menuButton = tk.Button(self.g, text='Main Menu', command=self.exitMenu)
+		self.menuButton = tk.Button(self.g, text='Main Menu', command=self.g.destroy)
 		self.menuButton.grid(column=0,row=0)
 		self.label_ip = tk.Label(self.g, text="What is the ip of the camera ?")
 		self.label_ip.grid(columnspan=1)
@@ -51,12 +52,10 @@ class RecognizeWindow(UI):
 		self.string_ip.focus_set()
 		self.confirmButton = tk.Button(self.g, text='Confirm', command=self.face_recognition)
 		self.confirmButton.grid(column=0)
-
-	def exitMenu(self):
-		self.g.destroy()
+		self.met = Metier()
 
 	def face_recognition(self):
-        	Recognition(self.string_ip)
+		self.met.face_recognition(self.string_ip)
 
 class DetectionWindow(UI):
 	def __init__(self, mainUI):
@@ -64,7 +63,7 @@ class DetectionWindow(UI):
 		self.g = tk.Toplevel()
 		self.g.title('Face detection')
 		self.g.geometry("350x180")
-		self.menuButton = tk.Button(self.g, text='Main Menu', command=self.exitMenu)
+		self.menuButton = tk.Button(self.g, text='Main Menu', command=self.g.destroy)
 		self.menuButton.grid(column=0,row=0)
 		self.label_id = tk.Label(self.g, text="Enter an id for the user (for example : 1, 2, 3)\nDo not take 1 for example if there is student.1.0.jpg\nChoose a number that is not part of the dataset folder :")
 		self.label_id.grid(columnspan=1)
@@ -77,83 +76,35 @@ class DetectionWindow(UI):
 		self.string_ip.grid(columnspan=1)
 		self.confirmButton = tk.Button(self.g, text='Confirm', command=self.face_detection)
 		self.confirmButton.grid(column=0)
+		self.met = Metier()
 
 	def face_detection(self):
-        	Detection(self.string_id_student, self.string_ip)
+		self.met.face_detection(self.string_ip, self.string_id_student)
 
-	def exitMenu(self):
-		self.g.destroy()
-
-class Recognition():
-	def __init__(self, string_ip):
-		self.ip = string_ip.get()
+class Metier():
+	def __init__(self):
+		self.ip = ""
 		self.id = 0
-		self.face_recognition()
-
-	def face_recognition(self):
+		self.i = 0
+		self.id_student = ""
+		if not os.path.isfile('haarcascade_frontalface_default.xml'):
+			print("Haarcascade file not found")
+			UI.exit(self)
+		self.haarcascade_file = "haarcascade_frontalface_default.xml"
 		if not os.path.isfile('trainer/trainer.yml'):
 			print("Trainer file not found")
-			return
-		recognizer = cv2.face.LBPHFaceRecognizer_create()
-		recognizer.read('trainer/trainer.yml')
-		if not os.path.isfile('haarcascade_frontalface_default.xml'):
-			print("Haarcascade file not found")
-			return
-		faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml');
-		font = cv2.FONT_HERSHEY_SIMPLEX
-		names = ['Unknow', 's1mple']
-		url = 'http://' + str(self.ip) + ':8080/shot.jpg'
-		connect = sqlite3.connect(':memory:')
-		db = connect.cursor()
-		db.execute('''CREATE TABLE students
+			UI.exit(self)
+		self.trainer_file = "trainer/trainer.yml"
+		self.connect = sqlite3.connect(':memory:')
+		self.db = self.connect.cursor()
+		self.db.execute('''CREATE TABLE students
 		(name, time)''')
-		while True:
-			try:
-				imgNp=np.array(bytearray(urlopen(url).read()),dtype=np.uint8)
-			except Exception:
-				print('IP is not valid please retry')
-				break
-			image_frame=cv2.imdecode(imgNp,-1)
-			gray = cv2.cvtColor(image_frame,cv2.COLOR_BGR2GRAY)
-			faces = faceCascade.detectMultiScale(
-				gray,
-				scaleFactor = 1.2,
-				minNeighbors = 5,
-				minSize = (50, 50),
-				)
-			for(x,y,w,h) in faces:
-				cv2.rectangle(image_frame, (x,y), (x+w,y+h), (255,0,0), 2)
-				self.id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
-				if (confidence < 100):
-					self.id = names[self.id]
-					db.execute("INSERT INTO students VALUES (?, ?);", (str(self.id), time.strftime("%A %d %B %Y %H:%M:%S")))
-					confidence = "  {0}%".format(round(100 - confidence))
-				else:
-					self.id = "unknow"
-					confidence = "  {0}%".format(round(100 - confidence))
-				cv2.putText(image_frame, str(self.id), (x+5,y-5), font, 1, (255,255,255), 2)
-			cv2.imshow('face_recognition_students',image_frame)
-			if cv2.waitKey(1) & 0xFF == ord('q'):
-				connect.commit()
-				for row in db.execute('SELECT * FROM students'):
-					print (row)
-				connect.close()
-				cv2.destroyWindow('face_recognition_students')
-				break
 
-class Detection():
-	def __init__(self, string_id_student, string_ip):
-		self.id_student = string_id_student.get()
+	def face_detection(self, string_ip, string_id_student):
 		self.ip = string_ip.get()
-		self.i = 0
-		self.face_detection()
-
-	def face_detection(self):
-		if not os.path.isfile('haarcascade_frontalface_default.xml'):
-			print("Haarcascade file not found")
-			return
+		self.id_student = string_id_student.get()
 		recognizer = cv2.face.LBPHFaceRecognizer_create()
-		frontal_face = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+		frontal_face = cv2.CascadeClassifier(self.haarcascade_file)
 		url = 'http://' + str(self.ip) + ':8080/shot.jpg'
 		while True:
 			try:
@@ -169,7 +120,7 @@ class Detection():
 				minNeighbors=5,
 				)
 			for (x,y,w,h) in faces:
-				cv2.rectangle(image_frame, (x,y), (x+w,y+h), (255,0,0), 2)
+				cv2.rectangle(image_frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 				cv2.imwrite("dataset/student." + str(self.id_student) + "." + str(self.i) + ".jpg", gray[y:y+h,x:x+w])
 				self.i += 1
 			cv2.imshow('face_student_detection', image_frame)
@@ -180,16 +131,50 @@ class Detection():
 				cv2.destroyWindow('face_student_detection')
 				break
 
-class Training():
-	def __init__(self):
-		self.training()
+	def face_recognition(self, string_ip):
+		self.ip = string_ip.get()
+		recognizer = cv2.face.LBPHFaceRecognizer_create()
+		recognizer.read(self.trainer_file)
+		faceCascade = cv2.CascadeClassifier(self.haarcascade_file)
+		names = ['Unknow', 's1mple']
+		url = 'http://' + str(self.ip) + ':8080/shot.jpg'
+		while True:
+			try:
+				imgNp=np.array(bytearray(urlopen(url).read()),dtype=np.uint8)
+			except Exception:
+				print('IP is not valid please retry')
+				break
+			image_frame=cv2.imdecode(imgNp,-1)
+			gray = cv2.cvtColor(image_frame,cv2.COLOR_BGR2GRAY)
+			faces = faceCascade.detectMultiScale(
+				gray,
+				scaleFactor = 1.2,
+				minNeighbors = 5,
+				minSize = (50, 50),
+				)
+			for(x, y, w, h) in faces:
+				cv2.rectangle(image_frame, (x,y), (x+w,y+h), (255,0,0), 2)
+				self.id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
+				if (confidence < 100):
+					self.id = names[self.id]
+					self.db.execute("INSERT INTO students VALUES (?, ?);", (str(self.id), time.strftime("%A %d %B %Y %H:%M:%S")))
+					confidence = "  {0}%".format(round(100 - confidence))
+				else:
+					self.id = "unknow"
+					confidence = "  {0}%".format(round(100 - confidence))
+				cv2.putText(image_frame, str(self.id), (x+5,y-5), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+			cv2.imshow('face_recognition_students',image_frame)
+			if cv2.waitKey(1) & 0xFF == ord('q'):
+				self.connect.commit()
+				for row in self.db.execute('SELECT * FROM students'):
+					print (row)
+				self.connect.close()
+				cv2.destroyWindow('face_recognition_students')
+				break
 
 	def training(self):
-	    if not os.path.isfile('haarcascade_frontalface_default.xml'):
-		    print("Haarcascade file not found")
-		    return
 	    recognizer = cv2.face.LBPHFaceRecognizer_create()
-	    frontal_face = cv2.CascadeClassifier("haarcascade_frontalface_default.xml");
+	    frontal_face = cv2.CascadeClassifier(self.haarcascade_file)
 	    if not os.path.isdir('dataset'):
 		    print("Dataset dir not found")
 		    return
@@ -210,7 +195,7 @@ class Training():
 			    faceSamples.append(img_numpy[y:y+h,x:x+w])
 			    students.append(id)
 	    recognizer.train(faceSamples, np.array(students))
-	    recognizer.write('trainer/trainer.yml')
+	    recognizer.write(self.trainer_file)
 	    print("Training done !")
 
 if __name__ == "__main__":

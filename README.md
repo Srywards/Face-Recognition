@@ -1,8 +1,14 @@
-# Face-recognition-student
+# Face-Recognition
 
-Recognition of students with IP Camera, OpenCV and Python !
+Recognition of faces with IP Camera, OpenCV and Python !
 
 ## Overview
+
+The main window where you can choose the step of the program you want :
+
+![ui_2](https://user-images.githubusercontent.com/15232456/57099143-044a4980-6d1c-11e9-99b4-5b604a4291c3.png)
+
+The program tree structure :
 
 ```bash
 ├── dataset
@@ -37,7 +43,7 @@ This will create 100 images in dataset folder like this :
 
 ![alarm (1)](https://user-images.githubusercontent.com/15232456/54199793-151fd100-44ca-11e9-9295-e85ec7363f20.png)
 
-Before you click on Recognize, at **Line 67 in face_recognition_students.py** change the name that matches your id
+Before you click on Recognize, at **Line 148 in face_recognition_students.py** change the name that matches your id
 
 For example i gave the id 1 for simple :
 

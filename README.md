@@ -1,6 +1,6 @@
 # Face-Recognition
 
-Recognition of faces with IP Camera, OpenCV and Python !
+Recognition of faces with IP Camera, OpenCV, Sqlite Database and Python !
 
 ## Overview
 
@@ -64,6 +64,7 @@ For example i gave the id 1 for simple :
 * PIP
 * Numpy
 * Image
+* sqlite3
 
 ## License
 

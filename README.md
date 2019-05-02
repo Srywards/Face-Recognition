@@ -37,9 +37,13 @@ Make sure to install the dependencies below and after execute :
 python face_recognition_students.py
 ```
 
+Then choose **Face Detection** step of the program.
+
 This will create 100 images in dataset folder like this : 
 
 ![example_dataset](https://user-images.githubusercontent.com/15232456/54198618-4945c280-44c7-11e9-87c6-c65154c6deed.png)
+
+When you have all your images, click on **Training** (It takes more or less time depending on the size of the dataset), a trainer.yml is create for the next and last step of the program.
 
 ![alarm (1)](https://user-images.githubusercontent.com/15232456/54199793-151fd100-44ca-11e9-9295-e85ec7363f20.png)
 
